@@ -1,0 +1,58 @@
+# Proyek Akhir Big Data - Kelompok 8
+# Cluster lokal: HDFS (1 NameNode + 1 DataNode) + Spark standalone (1 master + 1 worker)
+# Jalankan: docker compose up -d
+
+services:
+  namenode:
+    image: apache/hadoop:3.3.6
+    container_name: kel8-namenode
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    ports:
+      - "9870:9870"   # HDFS Web UI
+    env_file:
+      - ./hadoop.env
+    environment:
+      ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+    volumes:
+      - ./data:/dataset:ro
+
+  datanode:
+    image: apache/hadoop:3.3.6
+    container_name: kel8-datanode
+    hostname: datanode
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./hadoop.env
+    depends_on:
+      - namenode
+
+  spark-master:
+    image: apache/spark:3.5.8-python3
+    container_name: kel8-spark-master
+    hostname: spark-master
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.master.Master"]
+    environment:
+      SPARK_LOCAL_HOSTNAME: "spark-master"
+      SPARK_MASTER_HOST: "spark-master"
+    ports:
+      - "8090:8080"   # Spark Master Web UI -> http://localhost:8090
+      - "7077:7077"
+    volumes:
+      - ./src:/opt/spark/jobs:ro
+    depends_on:
+      - namenode
+
+  spark-worker:
+    image: apache/spark:3.5.8-python3
+    container_name: kel8-spark-worker
+    hostname: spark-worker
+    command: ["/opt/spark/bin/spark-class", "org.apache.spark.deploy.worker.Worker", "spark://spark-master:7077"]
+    environment:
+      SPARK_LOCAL_HOSTNAME: "spark-worker"
+      SPARK_WORKER_CORES: "2"
+      SPARK_WORKER_MEMORY: "2g"
+    ports:
+      - "8081:8081"   # Spark Worker Web UI
+    depends_on:
+      - spark-master

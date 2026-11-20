@@ -1,33 +1,6 @@
-# 1. Folder Data (Sesuai struktur proyekmu)
 data/*
 !data/.gitkeep
-
-# 2. Docker & Hadoop/Spark Temporary Volumes
-# Mencegah data HDFS lokal atau log container ikut ter-commit jika ter-mount
-hadoop_namenode/
-hadoop_datanode/
-spark-events/
-spark-warehouse/
-metastore_db/
-derby.log
-
-# 3. Python & PySpark Cache
 __pycache__/
-*.py[cod]
-*$py.class
-*.egg-info/
-.ipynb_checkpoints/
-venv/
-env/
-.venv/
-
-# 4. File Log & Environment Variables
-*.log
+*.pyc
 .env
-.env.local
-
-# 5. Sistem Operasi & Text Editor (VS Code / macOS / Windows)
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
+.ipynb_checkpoints/
